@@ -45,6 +45,7 @@ config USB_GADGET_FASTBOOT
 	bool
 	select BANNER
 	depends on COMMAND_SUPPORT
+	select BOSCH_COMMON
 	prompt "Android Fastboot support"
 
 endif
