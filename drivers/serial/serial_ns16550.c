@@ -288,11 +288,17 @@ static void ns16550_probe_dt(struct device_d *dev, struct ns16550_priv *priv)
 {
 	struct device_node *np = dev->device_node;
 
-	if (!IS_ENABLED(CONFIG_OFDEVICE))
-		return;
-
-	of_property_read_u32(np, "clock-frequency", &priv->plat.clock);
 	of_property_read_u32(np, "reg-shift", &priv->plat.shift);
+
+	if (!priv->plat.clock)
+		of_property_read_u32(np, "clock-frequency", &priv->plat.clock);
+}
+
+static void ns16550_probe_ptfm(struct device_d *dev, struct ns16550_priv *priv)
+{
+	struct NS16550_plat *plat = (struct NS16550_plat *)dev->platform_data;
+
+	priv->plat = *plat;
 }
 
 static struct ns16550_drvdata ns16450_drvdata = {
@@ -392,15 +398,13 @@ static int ns16550_init_ioport(struct device_d *dev, struct ns16550_priv *priv)
  *
  * @param[in] dev matched device
  *
- * @return EINVAL if platform_data is not populated,
- *	   ENOMEM if calloc failed
+ * @return ENODEV if both platform_data and device_node are not populated,
  *	   else return result of console_register
  */
 static int ns16550_probe(struct device_d *dev)
 {
 	struct ns16550_priv *priv;
 	struct console_device *cdev;
-	struct NS16550_plat *plat = (struct NS16550_plat *)dev->platform_data;
 	struct ns16550_drvdata *devtype;
 	int ret;
 
@@ -409,6 +413,7 @@ static int ns16550_probe(struct device_d *dev)
 		devtype = &ns16550_drvdata;
 
 	priv = xzalloc(sizeof(*priv));
+	priv->fcrval = FCRVAL;
 
 	ret = ns16550_init_iomem(dev, priv);
 	if (ret)
@@ -417,10 +422,14 @@ static int ns16550_probe(struct device_d *dev)
 	if (ret)
 		return ret;
 
-	if (plat)
-		priv->plat = *plat;
-	else
+	if (dev->platform_data) {
+		ns16550_probe_ptfm(dev, priv);
+	} else if (dev->device_node) {
 		ns16550_probe_dt(dev, priv);
+	} else {
+		ret = -ENODEV;
+		goto err;
+	}
 
 	if (!priv->plat.clock) {
 		priv->clk = clk_get(dev, NULL);
