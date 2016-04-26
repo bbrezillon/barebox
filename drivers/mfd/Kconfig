@@ -40,6 +40,13 @@ config MFD_SYSCON
 	help
 	  Select this option to enable accessing system control registers
 
+config MFD_SUN6I_PRCM
+	bool "Allwinner A31 PRCM controller"
+	depends on ARCH_SUNXI
+	help
+	  Support for the PRCM (Power/Reset/Clock Management) unit available
+	  in A31 SoC.
+
 config MFD_TWLCORE
 	bool
 

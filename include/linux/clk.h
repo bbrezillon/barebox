@@ -130,6 +130,23 @@ int clk_set_parent(struct clk *clk, struct clk *parent);
 struct clk *clk_get_parent(struct clk *clk);
 
 /**
+ * clk_get_phase - get the clock phase
+ * @clk: clock source
+ *
+ * Returns a positive phase in degrees, or a negative errno
+ */
+int clk_get_phase(struct clk *clk);
+
+/**
+ * clk_set_phase - get the clock phase
+ * @clk: clock source
+ * @degrees: phase in degrees
+ *
+ * Returns success (0) or negative errno.
+ */
+int clk_set_phase(struct clk *clk, int degrees);
+
+/**
  * clk_get_sys - get a clock based upon the device name
  * @dev_id: device name
  * @con_id: connection ID
@@ -214,6 +231,8 @@ struct clk_ops {
 	int		(*get_parent)(struct clk *clk);
 	int		(*set_rate)(struct clk *clk, unsigned long,
 				    unsigned long);
+	int		(*get_phase)(struct clk *clk);
+	int		(*set_phase)(struct clk *clk, int degrees);
 };
 
 struct clk {
@@ -234,6 +253,8 @@ struct clk_div_table {
 };
 
 struct clk *clk_fixed(const char *name, int rate);
+struct clk *clk_fixed_alloc(const char *name, int rate);
+void clk_fixed_free(struct clk *clk);
 
 struct clk_divider {
 	struct clk clk;
@@ -262,9 +283,14 @@ struct clk *clk_divider(const char *name, const char *parent,
 		void __iomem *reg, u8 shift, u8 width, unsigned flags);
 struct clk *clk_divider_one_based(const char *name, const char *parent,
 		void __iomem *reg, u8 shift, u8 width, unsigned flags);
+struct clk *clk_divider_power_of_two(const char *name, const char *parent,
+		void __iomem *reg, u8 shift, u8 width, unsigned flags);
 struct clk *clk_divider_table(const char *name,
 		const char *parent, void __iomem *reg, u8 shift, u8 width,
 		const struct clk_div_table *table, unsigned flags);
+struct clk *clk_fixed_factor_alloc(const char *name, const char *parent,
+		unsigned int mult, unsigned int div, unsigned flags);
+void clk_fixed_factor_free(struct clk *clk_ff);
 struct clk *clk_fixed_factor(const char *name,
 		const char *parent, unsigned int mult, unsigned int div,
 		unsigned flags);
@@ -281,6 +307,9 @@ void clk_fractional_divider_free(struct clk *clk_fd);
 struct clk *clk_mux_alloc(const char *name, void __iomem *reg,
 		u8 shift, u8 width, const char **parents, u8 num_parents,
 		unsigned flags);
+struct clk *clk_mux_table_alloc(const char *name, void __iomem *reg,
+		u8 shift, u8 width, const char **parents, u8 num_parents,
+		u32 *table, unsigned flags);
 void clk_mux_free(struct clk *clk_mux);
 struct clk *clk_mux(const char *name, void __iomem *reg,
 		u8 shift, u8 width, const char **parents, u8 num_parents,

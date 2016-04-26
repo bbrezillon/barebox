@@ -227,6 +227,33 @@ struct clk *clk_get_parent(struct clk *clk)
 	return clk->parents[idx];
 }
 
+int clk_get_phase(struct clk *clk)
+{
+	if (IS_ERR(clk))
+		return PTR_ERR(clk);
+
+	if (!clk->ops->get_phase)
+		return -EINVAL;
+
+	return clk->ops->get_phase(clk);
+}
+
+int clk_set_phase(struct clk *clk, int degrees)
+{
+	if (IS_ERR(clk))
+		return PTR_ERR(clk);
+
+	if (!clk->ops->set_phase)
+		return -EINVAL;
+
+	/* sanity check degrees */
+	degrees %= 360;
+	if (degrees < 0)
+		degrees += 360;
+
+	return clk->ops->set_phase(clk, degrees);
+}
+
 int clk_register(struct clk *clk)
 {
 	struct clk *c;

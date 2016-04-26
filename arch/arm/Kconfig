@@ -192,11 +192,13 @@ config ARCH_SOCFPGA
 config ARCH_SUNXI
 	bool "Allwinner A1X SoCs"
 	select COMMON_CLK
+	select COMMON_CLK_OF_PROVIDER
 	select CLKDEV_LOOKUP
 	select CPU_V7
 	select HAS_DEBUG_LL
 	select OFDEVICE
 	select OFTREE
+	select RESET_CONTROLLER
 
 config ARCH_S3C24xx
 	bool "Samsung S3C2410, S3C2440"

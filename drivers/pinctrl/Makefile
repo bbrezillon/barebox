@@ -11,3 +11,4 @@ obj-$(CONFIG_PINCTRL_TEGRA30) += pinctrl-tegra30.o
 obj-$(CONFIG_PINCTRL_TEGRA_XUSB) += pinctrl-tegra-xusb.o
 
 obj-$(CONFIG_ARCH_MVEBU) += mvebu/
+obj-$(CONFIG_ARCH_SUNXI) += sunxi/

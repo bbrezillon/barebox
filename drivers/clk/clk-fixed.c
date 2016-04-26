@@ -37,22 +37,32 @@ static struct clk_ops clk_fixed_ops = {
 	.is_enabled = clk_is_enabled_always,
 };
 
-struct clk *clk_fixed(const char *name, int rate)
-{
+struct clk *clk_fixed_alloc(const char *name, int rate) {
 	struct clk_fixed *fix = xzalloc(sizeof *fix);
-	int ret;
 
 	fix->rate = rate;
 	fix->clk.ops = &clk_fixed_ops;
 	fix->clk.name = name;
 
-	ret = clk_register(&fix->clk);
+	return &fix->clk;
+}
+
+void clk_fixed_free(struct clk *clk) {
+	free(container_of(clk, struct clk_fixed, clk));
+}
+
+struct clk *clk_fixed(const char *name, int rate)
+{
+	struct clk *fix = clk_fixed_alloc(name, rate);
+	int ret;
+
+	ret = clk_register(fix);
 	if (ret) {
-		free(fix);
+		clk_fixed_free(fix);
 		return ERR_PTR(ret);
 	}
 
-	return &fix->clk;
+	return fix;
 }
 
 #if defined(CONFIG_OFTREE) && defined(CONFIG_COMMON_CLK_OF_PROVIDER)

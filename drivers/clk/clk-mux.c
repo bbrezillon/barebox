@@ -23,6 +23,7 @@
 struct clk_mux {
 	struct clk clk;
 	void __iomem *reg;
+	u32 *table;
 	int shift;
 	int width;
 };
@@ -32,9 +33,18 @@ struct clk_mux {
 static int clk_mux_get_parent(struct clk *clk)
 {
 	struct clk_mux *m = container_of(clk, struct clk_mux, clk);
-	int idx = readl(m->reg) >> m->shift & ((1 << m->width) - 1);
+	u32 val = readl(m->reg) >> m->shift & ((1 << m->width) - 1);
+	int i;
 
-	return idx;
+	if (!m->table)
+		return val;
+
+	for (i = 0; i < clk->num_parents; i++) {
+		if (m->table[i] == val)
+			return i;
+	}
+
+	return -EINVAL;
 }
 
 static int clk_mux_set_parent(struct clk *clk, u8 idx)
@@ -44,7 +54,11 @@ static int clk_mux_set_parent(struct clk *clk, u8 idx)
 
 	val = readl(m->reg);
 	val &= ~(((1 << m->width) - 1) << m->shift);
-	val |= idx << m->shift;
+
+	if (!m->table)
+		val |= idx << m->shift;
+	else
+		val |= m->table[idx] << m->shift;
 
 	if (clk->flags & CLK_MUX_HIWORD_MASK)
 		val |= ((1 << m->width) - 1) << (m->shift + 16);
@@ -60,15 +74,16 @@ static struct clk_ops clk_mux_ops = {
 	.set_parent = clk_mux_set_parent,
 };
 
-struct clk *clk_mux_alloc(const char *name, void __iomem *reg,
+struct clk *clk_mux_table_alloc(const char *name, void __iomem *reg,
 		u8 shift, u8 width, const char **parents, u8 num_parents,
-		unsigned flags)
+		u32 *table, unsigned flags)
 {
 	struct clk_mux *m = xzalloc(sizeof(*m));
 
 	m->reg = reg;
 	m->shift = shift;
 	m->width = width;
+	m->table = table;
 	m->clk.ops = &clk_mux_ops;
 	m->clk.name = name;
 	m->clk.flags = flags;
@@ -77,6 +92,15 @@ struct clk *clk_mux_alloc(const char *name, void __iomem *reg,
 
 	return &m->clk;
 }
+
+struct clk *clk_mux_alloc(const char *name, void __iomem *reg,
+		u8 shift, u8 width, const char **parents, u8 num_parents,
+		unsigned flags)
+{
+	return clk_mux_table_alloc(name, reg, shift, width, parents,
+				   num_parents, NULL, flags);
+}
+
 
 void clk_mux_free(struct clk *clk_mux)
 {
@@ -92,6 +116,25 @@ struct clk *clk_mux(const char *name, void __iomem *reg,
 	int ret;
 
 	m = clk_mux_alloc(name, reg, shift, width, parents, num_parents, flags);
+
+	ret = clk_register(m);
+	if (ret) {
+		free(to_clk_mux(m));
+		return ERR_PTR(ret);
+	}
+
+	return m;
+}
+
+struct clk *clk_mux_table(const char *name, void __iomem *reg,
+		u8 shift, u8 width, const char **parents, u8 num_parents,
+		u32 *table, unsigned flags)
+{
+	struct clk *m;
+	int ret;
+
+	m = clk_mux_table_alloc(name, reg, shift, width, parents, num_parents,
+				table, flags);
 
 	ret = clk_register(m);
 	if (ret) {

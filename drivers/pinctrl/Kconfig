@@ -54,6 +54,11 @@ config PINCTRL_ROCKCHIP
 config PINCTRL_SINGLE
 	bool "pinctrl single"
 
+config PINCTRL_SUNXI_COMMON
+	bool
+	help
+	  The pinmux controller found on sunxi SoCs.
+
 config PINCTRL_TEGRA20
 	bool
 	default y if ARCH_TEGRA_2x_SOC
@@ -76,5 +81,6 @@ config PINCTRL_TEGRA_XUSB
 	  the SerDes lanes.
 
 source drivers/pinctrl/mvebu/Kconfig
+source drivers/pinctrl/sunxi/Kconfig
 
 endif

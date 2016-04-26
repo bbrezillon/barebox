@@ -69,11 +69,10 @@ static struct clk_ops clk_fixed_factor_ops = {
 	.recalc_rate = clk_fixed_factor_recalc_rate,
 };
 
-struct clk *clk_fixed_factor(const char *name,
-		const char *parent, unsigned int mult, unsigned int div, unsigned flags)
+struct clk *clk_fixed_factor_alloc(const char *name, const char *parent,
+		unsigned int mult, unsigned int div, unsigned flags)
 {
 	struct clk_fixed_factor *f = xzalloc(sizeof(*f));
-	int ret;
 
 	f->mult = mult;
 	f->div = div;
@@ -83,6 +82,24 @@ struct clk *clk_fixed_factor(const char *name,
 	f->clk.flags = flags;
 	f->clk.parent_names = &f->parent;
 	f->clk.num_parents = 1;
+
+	return &f->clk;
+}
+
+void clk_fixed_factor_free(struct clk *clk_ff)
+{
+	free(clk_ff);
+}
+
+struct clk *clk_fixed_factor(const char *name,
+		const char *parent, unsigned int mult, unsigned int div, unsigned flags)
+{
+	struct clk_fixed_factor *f;
+	struct clk *clk;
+	int ret;
+
+	clk = clk_fixed_factor_alloc(name, parent, mult, div, flags);
+	f = container_of(clk, struct clk_fixed_factor, clk);
 
 	ret = clk_register(&f->clk);
 	if (ret) {

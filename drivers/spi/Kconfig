@@ -54,6 +54,19 @@ config DRIVER_SPI_OMAP3
 	bool "OMAP3 McSPI Master driver"
 	depends on ARCH_OMAP3 || ARCH_AM33XX
 
+config DRIVER_SPI_SUN4I
+	tristate "Allwinner A10 SoCs SPI controller"
+	depends on ARCH_SUNXI || COMPILE_TEST
+	help
+	  SPI driver for Allwinner sun4i, sun5i and sun7i SoCs
+
+config DRIVER_SPI_SUN6I
+	tristate "Allwinner A31 SPI controller"
+	depends on ARCH_SUNXI || COMPILE_TEST
+	depends on RESET_CONTROLLER
+	help
+	  This enables using the SPI controller on the Allwinner A31 SoCs.
+
 endif
 
 endmenu

@@ -8,21 +8,30 @@ config BUILTIN_DTB_NAME
 	string
 	default "sun5i-a13-olinuxino" if MACH_SUN5I_A13_OLINUXINO
 
-choice
-	prompt "sunXi SoCs"
+comment "sunxi SoC families"
+
+config MACH_SUN4I
+	bool "sun4i"
 
 config MACH_SUN5I
 	bool "sun5i"
 
-endchoice
+config MACH_SUN6I
+	bool "sun6i"
 
-choice
-	prompt "sunXi SoC boards"
+config MACH_SUN7I
+	bool "sun7i"
+
+config MACH_SUN8I
+	bool "sun8i"
+
+config MACH_SUN9I
+	bool "sun9i"
+
+comment "sun5i based boards"
 
 config MACH_SUN5I_A13_OLINUXINO
 	bool "Olimex A13-Olinuxino"
 	depends on MACH_SUN5I
-
-endchoice
 
 endif # ARCH_SUNXI

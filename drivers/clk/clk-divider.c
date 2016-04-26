@@ -292,6 +292,22 @@ struct clk *clk_divider_one_based(const char *name, const char *parent,
 	return clk;
 }
 
+struct clk *clk_divider_power_of_two(const char *name, const char *parent,
+		void __iomem *reg, u8 shift, u8 width, unsigned flags)
+{
+	struct clk_divider *div;
+	struct clk *clk;
+
+	clk = clk_divider(name, parent, reg, shift, width, flags);
+	if (IS_ERR(clk))
+		return clk;
+
+	div = container_of(clk, struct clk_divider, clk);
+	div->flags |= CLK_DIVIDER_POWER_OF_TWO;
+
+	return clk;
+}
+
 struct clk *clk_divider_table(const char *name,
 		const char *parent, void __iomem *reg, u8 shift, u8 width,
 		const struct clk_div_table *table, unsigned flags)
