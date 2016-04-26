@@ -146,6 +146,7 @@ struct clk *sunxi_factors_register(struct device_node *node,
 	factors->reg = reg;
 	factors->config = data->table;
 	factors->get_factors = data->getter;
+	factors->hw.ops = &clk_factors_ops;
 
 	/* Add a gate if this factor clock can be gated */
 	if (data->enable) {
