@@ -953,6 +953,20 @@ config DEBUG_OMAP4_UART
 	  Say Y here if you want kernel low-level debugging support
 	  on OMAP4.
 
+config DEBUG_SUNXI_UART0
+	bool "sunXi Debug UART 0"
+	depends on ARCH_SUNXI
+	help
+	  Say Y here if you want low-level debbuging support on sunXi
+	  on the UART 0.
+
+config DEBUG_SUNXI_UART1
+	bool "sunXi Debug UART 1"
+	depends on ARCH_SUNXI
+	help
+	  Say Y here if you want low-level debbuging support on sunXi
+	  on the UART 1.
+
 config DEBUG_AM33XX_UART
 	bool "AM33XX Debug UART"
 	depends on ARCH_AM33XX

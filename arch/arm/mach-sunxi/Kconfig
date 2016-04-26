@@ -1,0 +1,28 @@
+if ARCH_SUNXI
+
+config ARCH_TEXT_BASE
+	hex
+	default 0x4a000000
+
+config BUILTIN_DTB_NAME
+	string
+	default "sun5i-a13-olinuxino" if MACH_SUN5I_A13_OLINUXINO
+
+choice
+	prompt "sunXi SoCs"
+
+config MACH_SUN5I
+	bool "sun5i"
+
+endchoice
+
+choice
+	prompt "sunXi SoC boards"
+
+config MACH_SUN5I_A13_OLINUXINO
+	bool "Olimex A13-Olinuxino"
+	depends on MACH_SUN5I
+
+endchoice
+
+endif # ARCH_SUNXI

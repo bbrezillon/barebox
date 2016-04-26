@@ -1,0 +1,9 @@
+/dts-v1/;
+/include/ "sun5i-a13.dtsi"
+
+/ {
+	model = "NextThing C.H.I.P.";
+	compatible = "nextthing,chip", "allwinner,sun5i-r8";
+};
+
+&uart1 { status = "okay"; };
