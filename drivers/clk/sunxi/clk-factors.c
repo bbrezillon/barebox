@@ -121,8 +121,12 @@ struct clk *sunxi_factors_register(struct device_node *node,
 	struct clk *gate = NULL;
 	struct clk *mux = NULL;
 	const char *clk_name = node->name;
-	const char *parents[FACTORS_MAX_PARENTS];
+	const char **parents;
 	int i = 0;
+
+	parents = kzalloc(FACTORS_MAX_PARENTS * sizeof(*parents), GFP_KERNEL);
+	if (!parents)
+		return ERR_PTR(-ENOMEM);
 
 	/* if we have a mux, we will have >1 parents */
 	while (i < FACTORS_MAX_PARENTS &&
